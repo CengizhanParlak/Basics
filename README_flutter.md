@@ -147,3 +147,38 @@ Paketleri silip tekrar yüklememiz lazım:
   return Future.value(true);
   }
   ```
+
+- AlertDialog WillPopScope
+
+  This example is used on multi page navigation app. Current Key is the key of a page that is currently on the screen. We set that key whenever user jumps around different navigation pages so we know where we at.
+
+  If the context of the Current Key (page we're on) can be popped; then we pop this page. But if not; show alert dialog to users if they're sure to exit the app.
+  
+  ```dart
+  Future<bool> _onWillPop() async {
+    // print('current context: ${Navigator.of(_currentKey.currentContext!)}'); //* şu anki context bilgisi
+    if (Navigator.of(_currentKey.currentContext!).canPop()) {
+      Navigator.of(_currentKey.currentContext!).pop();
+      return Future.value(false);
+    } else {
+      return (await showDialog(
+            context: context,
+            builder: (context) => new AlertDialog(
+              title: new Text('Are you sure?'),
+              content: new Text('Do you want to exit an App'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: new Text('No'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: new Text('Yes'),
+                ),
+              ],
+            ),
+          )) ??
+          false;
+    }
+  }
+  ```
