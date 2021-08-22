@@ -1,14 +1,50 @@
 # Dart notları
 
-## Libraries
+### Declarative and Imperative programming
+- *When the state of your app changes (for example, the user flips a switch in the settings screen), you change the state, and that triggers a redraw of the user interface. There is no imperative changing of the UI itself (like widget.setText)—you change the state, and the UI rebuilds from scratch.* [flutter.dev](https://flutter.dev/docs/development/data-and-backend/state-mgmt/declarative#:~:text=of%20your%20app%3A-,When%20the%20state,-of%20your%20app)
+- left is imperative; right is declarative (abstracting logic behind other methods and not doing everything explicityl)
+  ![](images/declarativeNimperative.png)
+- And Flutter is more like a declarative framework
+
+### What Business Logic means?
+- *we use libraries on projects only if the need is clearly remarkable. However, when we use a library, it is our responsibility and mission to separate it from critical parts of our code, which is the Business Logic.* [medium](https://medium.com/@abderrahim.benmakhlouf/why-flutter-react-native-should-not-be-part-of-your-business-logic-the-duty-of-the-developer-f7195b07d90d#:~:text=As%20Professional%20Developers%2C-,we%20use%20libraries,-on%20projects%20only)
+- *In Clean Architecture, for example, which respects those principles, the goal is to separate the concerns and roles that can be categorized into :*
+  1. UI (User Interface)
+  2. Formatter (the format, the legal part, the content)
+  3. Business Logic (the Business rules)
+  4. Data (can be in-memory, network like APIs or Online Database or local persistent store/database)*
+
+
+### State Management in Flutter
+- [State management approaches]([https://link](https://flutter.dev/docs/development/data-and-backend/state-mgmt/options))
+- Provider is recomended and used by Google itself.
+- *Provider is a complete dependency injection solution. Where ScopedModel provides the same functionality in terms of reactivity using the Model class + notifyListeners(). Provider is a dependency injection solution, with some very powerful provider types that takes care of boiler plate things like managing streams for instance.*
+
+### Libraries
 * [dart:core](https://api.dart.dev/stable/2.13.4/dart-core/Iterable-class.html)
   * [iterable.dart](https://api.dart.dev/stable/2.13.4/dart-core/Iterable-class.html)
 
-## Dart.dev
+### Dart.dev
 * [language cheatsheet](https://dart.dev/codelabs/dart-cheatsheet): short introductory to dart language with examples
 
-## Other Sources
+### Other Sources
 * [javatpoint](https://www.javatpoint.com/dart-programming)
+
+### Generic Types ( ``T`` )
+- *Later, you decide you want a number-specific version of this interface… You get the idea.*
+
+- *Generic types can save you the trouble of creating all these interfaces. Instead, you can create a single interface that takes a type parameter:*
+  ```dart
+  abstract class Cache<T> {
+  T getByKey(String key);
+  void setByKey(String key, T value);
+  }
+  ```
+- *In this code, T is the stand-in type. It’s a placeholder that you can think of as a type that a developer will define later.*
+
+
+### Private and Public variables
+- *Placing multiple classes together in one library can enable some useful patterns. Since privacy in Dart works at the library level, not the class level, this is a way to define “friend” classes like you might in C++. Every class declared in the same library can access each other’s private members, but code outside of that library cannot.*
 
 ### Arrow Function 
 ```dart
@@ -24,6 +60,13 @@ getHttpUrl(String server, String path, {int port = 80}) {
 getHttpUrl('example.com', '/index.html', port: 8080); // port == 8080
 getHttpUrl('example.com', '/index.html');            // port == 80
 ```
+### static, final and const keywords
+- *static means a member is available on the class itself instead of on instances of the class. That's all it means, and it isn't used for anything else. static modifies members.*
+
+- *final means single-assignment: a final variable or field must have an initializer. Once assigned a value, a final variable's value cannot be changed. final modifies variables.*
+
+- *const has a meaning that's a bit more complex and subtle in Dart. const modifies values. You can use it when creating collections, like const [1, 2, 3], and when constructing objects (instead of new) like const Point(2, 3). Here, const means that the object's entire deep state can be determined entirely at compile time and that the object will be frozen and completely immutable.*
+[stackoverflow answer](https://stackoverflow.com/questions/65736642/difference-between-static-and-const-variable-in-dart#:~:text=the%20declaration%20for%20cons%20must%20using%20const%2C%20you%20have%20to%20declare%20it%20as%20static%20const%20rather%20than%20just%20const.)
 
 ### Positional Parameters (choose *named* over positional) 
 ```dart
@@ -36,9 +79,8 @@ getHttpUrl('example.com', '/index.html');
 getHttpUrl('example.com', '/index.html', 8080);
 getHttpUrl('example.com', '/index.html', 8080, 5);
 ```
+- you can use either optional or positional parameter not both at the same time
 
-### you can use either optional or positional parameter not both at the same time
---- 
 
 ### Single Responsibility Principle (srp) 
 every function need to do 1 thing and 1 thing only
@@ -310,6 +352,7 @@ void main() {
 ```
 
 ### Null Safety and Sound Null Safety
+
 Dart.dev explanation on null safety [dart.dev article](https://dart.dev/null-safety/understanding-null-safety)   
 - *The resulting null safe code should be fully sound. “Soundness” in the context of static checking means different things to different people. For us, in the context of null safety, that means that if an expression has a static type that does not permit null, then no possible execution of that expression can ever evaluate to null. The language provides this guarantee mostly through static checks, but there can be some runtime checks involved too.*
 - *Note that eliminating null is not a goal. There’s nothing wrong with null. On the contrary, it’s really useful to be able to represent the absence of a value. Building support for a special “absent” value directly into the language makes working with absence flexible and usable. **It is not null that is bad, it is having null go where you don’t expect it that causes problems.***
@@ -399,14 +442,14 @@ Dart.dev explanation on null safety [dart.dev article](https://dart.dev/null-saf
 
 ### Nullable Variables
 ```dart
-String? name; //nullable değişken
-name = 'Han';            //name değişkeni artık non-nullable
+String? name;             //nullable değişken
+name = 'Han';            //name değişkeni artık String ama hâlâ nullable
 ```
 
 ### Null-aware assignment (??)
 ```dart
 double? price;
-price ??= 0;            //null ise 0 yap
+price ?? = 0;            //null ise 0 yap
 double gonnaPay = price;
 ```
 
@@ -532,6 +575,8 @@ class Coffee {
 - ***It’s almost like the word “late” describes when it enforces the variable’s guarantees.***
 - *every time the field is read, a runtime check is inserted to make sure it has been assigned a value. If it hasn’t, an exception is thrown. Giving the variable the **type String means “you should never see me with a value other than a string”** and the **late modifier means “verify that at runtime”**.*   
 - The late modifier lets you defer initialization, but still prohibits you from treating it like a nullable variable.
+- 
+
 ### Lazy initialization
 - It may seem paradoxical, but you can use late on a field that has an initializer:
   ```dart
