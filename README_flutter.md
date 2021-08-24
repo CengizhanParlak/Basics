@@ -1,5 +1,9 @@
 # Flutter notları
+
+## Kaynaklar
+
 ### Aptal Hatalar
+
 - Image için couldn't load asset hatası veriyor. Fakat pubspec.yaml ve assets path'i doğru.
 Paketleri silip tekrar yüklememiz lazım:
   1. proje klasöründe terminali aç
@@ -12,7 +16,6 @@ Paketleri silip tekrar yüklememiz lazım:
   <details class="markdown-body">
 
   <summary>Click for code!</summary>
-
 
   ```dart
   final messages = <Message>[
@@ -54,15 +57,19 @@ Paketleri silip tekrar yüklememiz lazım:
 
   </details>
 
+## Structure Related (Design Patterns, Class compositions, Inheritance, Page and App Structure)
 
 ### Composition in Flutter
+
 - An instance of MyWidget is a StatelessWidget, but in a sense, it is composed of a Column, two Container widgets, and a Placeholder. Through composition, we define what a MyWidget is. Many Flutter widgets, custom and core, are thin wrappers around a bunch of child widgets. This allows a great deal of flexibility and power when constructing an app's UI.
 
 - Inheritance relationships are often described as **is-a relationships**; an ArmoredAlienTemplate is an AlienTemplate. Composition relationships are **has-a relationships**; a LiveAlien has an AlienTemplate. Use all of these concepts when constructing your own classes, remembering that each is best for different situations.
 
 ### Composition over Inheritance
+
 - *Flutter uses composition over inheritance.* [stackoverflow](https://stackoverflow.com/questions/51476234/subclass-a-class-that-extends-statelesswidget-or-statefulwidget-class#:~:text=23-,As%20stated%20by%20Gunter,-%2C%20flutter%20uses%20composition)
 - *This means that instead of extending a Widget, you should create a smaller one and then reuse it. A practical example would be a base button :*
+
   ```dart
   class MyButton extends StatelessWidget {
     final Color color;
@@ -78,7 +85,9 @@ Paketleri silip tekrar yüklememiz lazım:
     }
   }
   ```
+  
 - *Then reused using composition to create a more specific type of button :*
+
   ```dart
   class OutlineButton extends StatelessWidget {
     final Color color;
@@ -104,18 +113,93 @@ Paketleri silip tekrar yüklememiz lazım:
   ```
 
 ### Services in Flutter
-- *Services are just normal Dart classes. Don’t think of them in the Android sense of the word, that is, a long-running background task. They are just classes that you write to do some specialized task in your app. You don’t even have to call them services. I’m just calling them that because that’s what FilledStacks calls them. You could call them helpers or repositories, but services is a good name and it matches the idea of microservices. Instead of being spread out across the network, though, they are contained within your app.* [medium article](https://medium.com/flutter-community/creating-services-to-do-the-work-in-your-flutter-app-93d6c4aa7697#:~:text=Services%20are%20just,within%20your%20app.)
-- *Here are a few common examples you might write a service to handle:*
-    - Read and write to local storage (database, shared preferences, files)
-    - Access a web API
-    - Log in a user
-    - Perform some heavy calculation
-    - Wrap Firebase or some other third-party package
 
-### GlobalKeys in Flutter
+- *Services are just normal Dart classes. Don’t think of them in the Android sense of the word, that is, a long-running background task. They are just classes that you write to do some specialized task in your app. You don’t even have to call them services. I’m just calling them that because that’s what FilledStacks calls them. You could call them helpers or repositories, but services is a good name and it matches the idea of microservices. Instead of being spread out across the network, though, they are contained within your app.* [medium article](https://medium.com/flutter-community/creating-services-to-do-the-work-in-your-flutter-app-93d6c4aa7697#:~:text=Services%20are%20just,within%20your%20app.)
+
+- *Here are a few common examples you might write a service to handle:*
+  - Read and write to local storage (database, shared preferences, files)
+  - Access a web API
+  - Log in a user
+  - Perform some heavy calculation
+  - Wrap Firebase or some other third-party package
+
+## Navigation, Routing, Passing Data to Other Pages
+
+### GlobalKeys in Flutter (used in Routing)
+
 - *In Flutter GlobalKeys can be used to access the state of a StatefulWidget and that's what we'll use to access the NavigatorState outside of the build context. We'll create a NavigationService that contains the global key, we'll set that key on initialization and we'll expose a function on the service to navigate given a name. Let's start with the NavigationService.*
 
-### Inherited Widget and good practice
+  ```dart
+  final GlobalKey<NavigatorState> _searchScreenKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _dietScreenKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _savedRecipeScreenKey =
+      GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _profileScreenKey = GlobalKey<NavigatorState>();
+  DateTime? currentBackPressTime;
+
+  class MainScreen extends StatefulWidget {
+  const MainScreen({Key? key}) : super(key: key);
+  @override
+  _MainScreenState createState() => _MainScreenState();
+  }
+
+  class _MainScreenState extends State<MainScreen>{
+  late final int _indexOfDietScreen;
+  late GlobalKey<NavigatorState> _currentKey;
+
+  final List<GlobalKey<NavigatorState>> _keys = <GlobalKey<NavigatorState>>[
+    _searchScreenKey,
+    _dietScreenKey,
+    _savedRecipeScreenKey,
+    _profileScreenKey,
+  ];
+
+  void _onItemTapped(int index) { //bottom navigation barlardaki onTap fonksiyonu
+    setState(() {
+      _currentKey = _keys.elementAt(_selectedIndex);
+    });
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    _indexOfDietScreen = _keys.indexOf(_dietScreenKey);
+    _currentKey = _keys.elementAt(_indexOfDietScreen);
+    
+  }
+  }
+
+  Future<bool> _onWillPop() {
+    // print('current context: ${Navigator.of(_currentKey.currentContext!)}'); //* şu anki context bilgisi
+    if (Navigator.of(_currentKey.currentContext!).canPop()) {
+      Navigator.of(_currentKey.currentContext!).pop();
+      return Future.value(false);
+    } else {
+      now = DateTime.now();
+      if (currentBackPressTime == null ||
+          now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
+        currentBackPressTime = now;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(customSnackBar("Çıkmak için tekrar geri basın"));
+        return Future.value(false);
+      }
+      return Future.value(true);
+    }
+  }
+
+  @override
+  Widget build (buildContext context){
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        //body: stack->offstage->tickermode->materialApp-><customPages>
+        //bottomNavigationBar: bottomnavigationbar->onTap: _onItemTapped,
+      ),
+    );
+  }
+  ```
+
+### Inherited Widgets and good practices while building Custom Widgets
 
 - *Use const to build your widgets* [medium | mehmet fidanboylu]([https://link](https://medium.com/@mehmetf_71205/inheriting-widgets-b7ac56dbbeb1#:~:text=It%20is%20important%20to%20note%3A))
 
@@ -182,3 +266,15 @@ Paketleri silip tekrar yüklememiz lazım:
     }
   }
   ```
+
+### Production and Uploading to a Store
+
+- Creating SHA1 and SHA-256 keys for Firebase auth or some other things
+  1. Add firebase_core package to your dependencies on your `pubspec.yaml`
+  2. Install JDK 11 (JDK 16 is not working on Aug 2021, 23th)
+  3. Set JAVA_HOME on path variables to JDK folder (not bin, the whole jdk folder)
+  4. Close and reopen IDE
+  5. Open shell terminal in the project root
+  6. `cd android`
+  7. `gradlew signingReport`
+  8. Check terminal to see where your key files are located at (mine was in `C:\Users\cengi\.android\`)

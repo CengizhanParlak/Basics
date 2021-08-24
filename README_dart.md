@@ -2,6 +2,11 @@
 
 ## foo title
 
+### Performance and Use Case Recommendations (Do's and Don'ts)
+
+- Map v. List performance
+  - Reaching values v. reaching elements: List is more performant to my calculations (`stopwatch..elapsed()`).
+
 ### Declarative and Imperative programming
 
 - *When the state of your app changes (for example, the user flips a switch in the settings screen), you change the state, and that triggers a redraw of the user interface. There is no imperative changing of the UI itself (like widget.setText)—you change the state, and the UI rebuilds from scratch.* [flutter.dev](https://flutter.dev/docs/development/data-and-backend/state-mgmt/declarative#:~:text=of%20your%20app%3A-,When%20the%20state,-of%20your%20app)
@@ -37,7 +42,7 @@
 
 - [javatpoint](https://www.javatpoint.com/dart-programming)
 
-### Generic Types ( ``T`` )
+### Generic Types ( `T` )
 
 - *Later, you decide you want a number-specific version of this interface… You get the idea.*
 
@@ -337,14 +342,13 @@ class SmartPhone{
 
 ### Generative and Factory constructors
 
-Use a factory in situations where you don't necessarily want to return a new instance of the class itself. Use cases:
+- *Perhaps a more suitable term here would be "warehouse": if an item is already available, pull it off the shelf and deliver it. If not, call for a new one.* [stackoverflow | Dave Fort](https://stackoverflow.com/questions/53886304/understanding-factory-constructor-code-example-dart#:~:text=as%20inherently%20generative.-,Perhaps%20a,-more%20suitable%20term)
+- Use a factory in situations where you don't necessarily want to return a new instance of the class itself. Use cases:
+  - the constructor is expensive, so you want to return an existing instance - if possible - instead of creating a new one;
+  - you only ever want to create one instance of a class (the singleton pattern);
+  - you want to return a subclass instance instead of the class itself.
 
-the constructor is expensive, so you want to return an existing instance - if possible - instead of creating a new one;
-
-- you only ever want to create one instance of a class (the singleton pattern);
-- you want to return a subclass instance instead of the class itself.
-
-**Explanation**
+***Explanation***
 
 A Dart class may have generative constructors or factory constructors. A generative constructor is a function that always returns a new instance of the class. Because of this, it does not utilize the return keyword. A common generative constructor is of the form:
 
@@ -358,9 +362,11 @@ class Car{
   factory Car.suv(){
     return Car(bodyType: 'SUV');
   }
-}```
+}
+```
 
 ### Getter Seter
+
 ```dart
 class Student {
   int _id = 0;
