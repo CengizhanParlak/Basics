@@ -87,6 +87,11 @@ getHttpUrl('example.com', '/index.html');            // port == 80
 - *const has a meaning that's a bit more complex and subtle in Dart. const modifies values. You can use it when creating collections, like const [1, 2, 3], and when constructing objects (instead of new) like const Point(2, 3). Here, const means that the object's entire deep state can be determined entirely at compile time and that the object will be frozen and completely immutable.*
 [stackoverflow answer](https://stackoverflow.com/questions/65736642/difference-between-static-and-const-variable-in-dart#:~:text=the%20declaration%20for%20cons%20must%20using%20const%2C%20you%20have%20to%20declare%20it%20as%20static%20const%20rather%20than%20just%20const.)
 
+- **When to use**:
+  - *Use final: If you don’t know what it’s value will be at compile-time. For example, when you can need to get data from an API, this happens when running your code.*
+
+  - *Use const: If you are sure that a value isn’t going to be changed when running your code. For example, when you declare a sentence that always remains the same*
+
 ### Positional Parameters (choose *named* over positional)
 
 ```dart
