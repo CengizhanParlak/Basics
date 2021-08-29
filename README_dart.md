@@ -209,6 +209,10 @@ void main(){
 
 ### Cascade Notation
 
+- Cascades (..) allow you to make a sequence of operations on the same object[SO | @mo sean]([https://link](https://stackoverflow.com/questions/49447736/list-use-of-double-dot-in-dart#:~:text=Cascades%20(..)%20allow%20you%20to%20make%20a%20sequence%20of%20operations%20on%20the%20same%20object))
+
+- It allows you to not repeat the same target if you want to call several methods on the same object. [SO | @alexandre ardhuin](https://stackoverflow.com/questions/49447736/list-use-of-double-dot-in-dart#:~:text=It%20allows%20you%20to%20not%20repeat%20the%20same%20target%20if%20you%20want%20to%20call%20several%20methods%20on%20the%20same%20object.)
+
 ```dart
 car = Car()
   ..make = 'Nissan'
@@ -1024,12 +1028,41 @@ void main(){
 
 ```
 
-###
+### Asynchronous programming in Dart
+
+- Asenkron: Farklı işlemler, çalışmaya başlamak için diğerinin bitmesini beklemiyor. Eşzamanlı birden çok işlem çalışıyor. İşlemler bitince (örneğin veritabanından veri çekmek), programcının yazdığı mantığa uygun şekilde değer döndürülüyor veya program uygun şekilde değiştiriliyor, bilgiler gösteriliyor vs.
+- Senkron: Tüm işlemler sırayla gerçekleşiyor ve birbirlerini bekliyorlar. Concurrent, eşzamanlı bir çalışma yok.
+- Dart'ta bu işlemler Future [Future | dart.dev](https://dart.dev/codelabs/async-await) ve Stream'lerle [Stream | dart.dev](https://dart.dev/tutorials/language/streams) gerçekleşiyor.
+- Asenkron programlamada sıkla kullanılan async, async*, yield, yield* anahtar kelimelerinin ne işe yaradığını öğrenmek için: [SO | @tokenyet](https://stackoverflow.com/questions/55776041/what-does-yield-keyword-do-in-flutter#:~:text=getting%20over%20keywords.-,async*,-sync*%20yield*%20yield) [SO | @copsonroad](https://stackoverflow.com/questions/57492517/difference-between-yield-and-yield-in-dart#:~:text=yield-,It%20is%20used%20to%20emit,-values%20from%20a) [Generators | dart.dev](https://dart.dev/guides/language/language-tour#generators)
 
 ```dart
 ```
 
-###
+### Bloc design pattern in Dart
+
+- Bloc (**B**usiness **Lo**gic **C**omponent) stream ve reaktif programlamada kullanılması için Google tarafından 2018 yılında öne sürülen bir design pattern'dır.
+- Business Logic denilen: programın nasıl işlendiğinin yer aldığı kodları Presentation layer'dan ayırmamızı sağlar. Presentation Layer: programın işlenmesi sonrası, programın sahip olduğu bilgilerin kullanıcıya gösterildiği kısımdır.
+- Bu pattern'ın uygulamaya dâhil edilmesi için bloc ve flutter_bloc paketlerinden yardım alırız. [bloclibrary | Bloclibrary.dev](https://bloclibrary.dev/)
+
+### Bloc ve Flutter_bloc paketleri
+
+- Bu paketler, yukarıda bahsedilen design pattern'ı uygulamalarıza dahil edebilmemizi sağlar.
+- Programın durumlarını (state) kontrol edebilmek için `setState(){}` denilen, kısıtlı fonksiyonellik sağlayan garabetten kurtulmamıza olanak verir. [temel konseptler | bloclibrary.dev](https://bloclibrary.dev/#/coreconcepts)
+- Anahtar farklar
+
+| Cubit | Bloc        |
+|------------|-------------
+| Basit        | Daha kompleks        |
+| Kod olarak az yer kaplar        | Kod olarak daha fazla kaplar|
+| State güncellemesini tek bir fonksyion ile yapar     | State güncellemesini gelen event'lerin sayısına göre yapar     |
+| emit metoduyla durumları değiştirir     | yield keywordüyle durumları değiştirir   |
+| Kod takibi zor yapılır        | Kod takibi rahatça yapılabilir (onEvent, onTransition gibi metotlar aracılığıyla; şimdiki ve sonraki state harici, değişime sebep olan event'i de görebiliriz)        |
+| Debugging zordur      | Debugging yapmamızı sağlayan metotlara erişim vardır  |
+| async*, yield, yield* gibi generator keyword'leri bilmenize gerek yoktur     | içerisinde async*, yield ve yield* çağrılarını kullanır      |
+
+- Hangisi kullanmalıyım?
+  - Cubit basit appler için uygundur. Kompleks olmayan fonksiyonellikler (rengi değiştir, sayıyı arttır, text'i veya özelliklerini değiştir gibi) için kullanılması uygundur.
+  - Bloc kompleks appler için kullanılması şarttır. Kritik öneme sahip fonksiyonellikler (veritabanından bilgi çekme, kullanıcı girişi yapma, ekran yükleme gibi) için kullanılması şarttır/uygundur. Event-driven uygulamalarda kullanılması kaçınılmazdır.
 
 ```dart
 ```
