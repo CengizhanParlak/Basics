@@ -21,7 +21,7 @@
     - [Document deletion limit: max 20K/day on free Spark plan](#document-deletion-limit-max-20kday-on-free-spark-plan)
     - [Cannot query across subcollections](#cannot-query-across-subcollections)
     - [Data nesting can be up to 100 levels deep](#data-nesting-can-be-up-to-100-levels-deep)
-    - [Choosing data structure - nested data in document vs. subcollections vs. root-level collections](#choosing-data-structure---nested-data-in-document-vs-subcollections-vs-root-level-collections)
+    - [Choosing data structure - nested data in document vs. subcollections vs.  root-level collections](#choosing-data-structure---nested-data-in-document-vs-subcollections-vs--root-level-collections)
     - [No automatic ordering by creation date](#no-automatic-ordering-by-creation-date)
     - [Transactions](#transactions)
 
@@ -308,75 +308,97 @@ Paketleri silip tekrar yüklememiz lazım:
 
 ## Database (NoSQL, Firebase) and Backend related
 
+- özetin özeti:
+  1. NoSQL implementasyonu
+  2. Field'lar verilerin tutulduğu en küçük birim
+     1. key: value
+     2. key'ler string
+     3. value'lar int, bool, string, array, georeference gibi birçok değeri veya subcollection yapılarını tutabiliyor
+  3. Döküman: bir sürü field'a sahip belgeler
+  4. Collection: dökümanların saklandığı yapı
+  5. Veriler JSON olarak tutuluyor (key:value)
+  6. Dökümanlar en fazla 1MiB yer tutabilir. (char, int vs. 1 byte. 1 milyon char veya int kombinasyonuna sahip olman lazım. biraz zor)
+  7. Döküman boyutu hesaplanırken
+     1. döküman path'inin string değeri
+     2. dökümandaki tüm field'ların keylerinin byte değeri
+     3. dökümandaki tüm field'ların value'larının byte değeri hesaplanıyor
+  8. Dökümanlar alt üye olarak subcollection içerebiliyor
+     1. Subcollection'lar döküman boyutundan yemiyorlar.
+  9. Data structure için 3 yaklaşım var.
+     1. Genel collection'lar aç (user, messages, chat_rooms). Dökümanların altındaki field'larla her şeyi hallet
+     2. Collection'ların altındaki dökümanlara subcollection'lar açarak ağaçlı bir yapı sağla. Scalability'si yüksek bir NoSQL implementasyonun olsun. Ama complex query'ler çok ağaçlı yapıdan dolayı gerçeklemesi zor. (kod olarak zor olduğu kesin. docs'da arama gecikmesi olarak da sıkıntı olacağı da söyleniyor)
+     3. Aynı değerleri farklı koleksiyonlara bölerek RDBMS'deki many-to-many yapısını gerçekle.
+
 - Data duplication vs. data referencing while storing data in Firestore NoSQL schema [SO | @alex mamo](https://stackoverflow.com/questions/53053768/what-is-the-correct-way-to-structure-this-kind-of-data-in-firestore/53057707#:~:text=Data%20duplication%20is%20the%20key%20to%20faster%20reads)
 - A good GitHub repo to summarize use cases, edge cases and caveats in Flutter [github | ecgan/firestore-considerations](https://link)
 
-<details>
-  <summary>Firebase summary</summary>
+  <details>
+    <summary>Firebase summary</summary>
 
-### Introduction
-
-Firestore is [launched](https://firebase.googleblog.com/2017/10/introducing-cloud-firestore.html) in early October 2017 to the public as a beta release. 
-
-Google has been [recommending](https://firebase.googleblog.com/2017/10/cloud-firestore-for-rtdb-developers.html) "most new applications start with Cloud Firestore".
-
-However, as a developer goes through the [docs](https://firebase.google.com/docs/firestore/), you may notice there are some caveats.  
-
-This page serves as a one-stop center to know about the things / "caveats" to consider before really adopting Cloud Firestore in an app. 
-
-Even though Firestore addresses a number of shortcomings in the Realtime Database, it is important to note that it is not a magic silver bullet. 
-
-### Considerations
-
-#### Deleting a document does not delete its subcollections
-
-In Firestore, the data is organized in the collection -> document -> subcollection -> document -> ... structure. 
-
-When you delete a document that has associated subcollections, the subcollections are not deleted. They are still accessible by reference.
-
-If you want to delete documents in subcollections when deleting a document, you must do so manually, as shown in [Delete Collections](https://firebase.google.com/docs/firestore/manage-data/delete-data#collections)
-
-[Link](https://firebase.google.com/docs/firestore/data-model#subcollections)
-
-#### Delete collection by deleting individual documents
-
-"To delete an entire collection or subcollection in Cloud Firestore, retrieve all the documents within the collection or subcollection and delete them. If you have larger collections, you may want to delete the documents in smaller batches to avoid out-of-memory errors. Repeat the process until you've deleted the entire collection or subcollection."
-
-[Link](https://firebase.google.com/docs/firestore/manage-data/delete-data)
-
-### Document deletion limit: max 20K/day on free Spark plan
-
-Something to be aware of, in case you need to delete many important documents.
-
-[Link](https://firebase.google.com/pricing/)
-
-### Cannot query across subcollections
-
-If you need to query data across collections, use root-level collections.
-
-[Link](https://firebase.google.com/docs/firestore/data-model#subcollections)
-
-### Data nesting can be up to 100 levels deep
-
-Self explanatory. This should be good enough for most cases. 
-
-### Choosing data structure - nested data in document vs. subcollections vs. root-level collections
-
-The doc explains it quite well. 
-
-[Link](https://firebase.google.com/docs/firestore/manage-data/structure-data)
-
-### No automatic ordering by creation date 
-
-"If you want to be able to order your documents by creation date, you should store a timestamp as a field in the documents."
-
-[Link](https://firebase.google.com/docs/firestore/manage-data/add-data)
-
-### Transactions
-
-- Read operations must come before write operations.
-- A function calling a transaction (transaction function) might run more than once if a concurrent edit affects a document that the transaction reads.
-- Transaction functions should not directly modify application state.
-- Transactions will fail when the client is offline.
-
-</details>
+  ### Introduction
+  
+  Firestore is [launched](https://firebase.googleblog.com/2017/10/introducing-cloud-firestore.html) in early October 2017 to the public as a  beta release.
+  
+  Google has been [recommending](https://firebase.googleblog.com/2017/10/cloud-firestore-for-rtdb-developers.html) "most new applications start with  Cloud Firestore".
+  
+  However, as a developer goes through the [docs](https://firebase.google.com/docs/firestore/), you may notice there are some caveats.  
+  
+  This page serves as a one-stop center to know about the things / "caveats" to   consider before really adopting Cloud Firestore in an app.
+  
+  Even though Firestore addresses a number of shortcomings in the Realtime  Database, it is important to note that it is not a magic silver bullet.
+  
+  ### Considerations
+  
+  #### Deleting a document does not delete its subcollections
+  
+  In Firestore, the data is organized in the collection -> document ->  subcollection -> document -> ... structure.
+  
+  When you delete a document that has associated subcollections, the  subcollections are not deleted. They are still accessible by reference.
+  
+  If you want to delete documents in subcollections when deleting a document,   you must do so manually, as shown in [Delete Collections](https://firebase.google.com/docs/firestore/manage-data/delete-data#collections)
+  
+  [Link](https://firebase.google.com/docs/firestore/data-model#subcollections)
+  
+  #### Delete collection by deleting individual documents
+  
+  "To delete an entire collection or subcollection in Cloud Firestore, retrieve   all the documents within the collection or subcollection and delete them. If  you have larger  collections, you may want to delete the documents in smaller  batches to avoid out-of-memory errors. Repeat the process until you've   deleted the entire collection or   subcollection."
+  
+  [Link](https://firebase.google.com/docs/firestore/manage-data/delete-data)
+  
+  ### Document deletion limit: max 20K/day on free Spark plan
+  
+  Something to be aware of, in case you need to delete many important documents.
+  
+  [Link](https://firebase.google.com/pricing/)
+  
+  ### Cannot query across subcollections
+  
+  If you need to query data across collections, use root-level collections.
+  
+  [Link](https://firebase.google.com/docs/firestore/data-model#subcollections)
+  
+  ### Data nesting can be up to 100 levels deep
+  
+  Self explanatory. This should be good enough for most cases.
+  
+  ### Choosing data structure - nested data in document vs. subcollections vs.  root-level collections
+  
+  The doc explains it quite well.
+  
+  [Link](https://firebase.google.com/docs/firestore/manage-data/structure-data)
+  
+  ### No automatic ordering by creation date
+  
+  "If you want to be able to order your documents by creation date, you should  store a timestamp as a field in the documents."
+  
+  [Link](https://firebase.google.com/docs/firestore/manage-data/add-data)
+  
+  ### Transactions
+  
+  - Read operations must come before write operations.
+  - A function calling a transaction (transaction function) might run more than   once if a concurrent edit affects a document that the transaction reads.
+  - Transaction functions should not directly modify application state.
+  - Transactions will fail when the client is offline.
+  
+  </details>
+  
